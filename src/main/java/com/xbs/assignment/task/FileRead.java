@@ -1,37 +1,50 @@
 package com.xbs.assignment.task;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Read any text file and return the number of words repeated in the file and
+ * the count of the words
+ */
 public class FileRead {
 
+	private final String folderPath = "./src/main/resources/";
+
+	private final String fileExtension = ".txt";
+
 	/**
-	 * Get words and their counts
+	 * Read from the file and get words and their counts
 	 * 
-	 * @param sentence
+	 * @param fileName
 	 */
-	public void wordsCountInSentence(String sentence) throws IOException {
-		FileReader fileReader = null;
+	public void wordsCountInSentence(String fileName) throws IOException {
+		BufferedReader bufferedReader = null;
 		try {
-			fileReader = new FileReader("./src/main/resources/sentence-read.txt");
-			String[] words = sentence.split("\\s+");
+			fileName = fileName.endsWith(fileExtension) ? fileName : fileName.trim().concat(fileExtension);
+			bufferedReader = new BufferedReader(new FileReader(folderPath + fileName));
+			String content = bufferedReader.readLine();
+			String[] words = content.split("\\s+");
 			Map<String, Integer> totalWords = new HashMap<>();
 			for (String word : words) {
-				int count = totalWords.getOrDefault(word, 0);
+				int count = totalWords.getOrDefault(word, 0); // count the word if exists, else 0
 				totalWords.put(word, ++count);
 			}
-			System.out.println(totalWords.toString().replace("{", "").replace("}", ""));
-		} catch (FileNotFoundException fe) {
-			System.out.println("Exception: " + fe.getMessage());
+			for (String key : totalWords.keySet()) {
+				System.out.println(key.trim() + " = " + totalWords.get(key));
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println("Exception: " + e.getMessage());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		} finally {
-			if (fileReader != null) {
+			if (bufferedReader != null) {
 				try {
-					fileReader.close();
+					bufferedReader.close();
 				} catch (IOException e) {
 					System.out.println(e.getMessage());
 				}
@@ -40,9 +53,17 @@ public class FileRead {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String sentence = "Hello world is hello   world   is ".toLowerCase();
-		FileRead fileRead = new FileRead();
-		fileRead.wordsCountInSentence(sentence);
+		try {
+			if (args != null && args.length > 0) {
+				String fileName = args[0];
+				FileRead fileRead = new FileRead();
+				fileRead.wordsCountInSentence(fileName);
+			} else {
+				System.out.println("Only one argument required");
+			}
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 }
